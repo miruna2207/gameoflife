@@ -16,8 +16,14 @@ struct stiva{
     Node *headList;
     struct stiva *next;
 };
-
 typedef struct stiva Stack;
+
+struct copac{
+    Node *head;
+    struct copac *left,*right;
+};
+typedef struct copac TreeNode;
+
 
 int calculare_vecini(char *matrice,int N,int M,int i,int j);
 
@@ -39,3 +45,20 @@ void deleteStack(Stack **top);
 
 void writeChanges(Node **head_gen,char *matrice,int N,int M);
 
+char* RuleB(Node **head,char *matrice,int N,int M);
+
+void parcurgereCopac(TreeNode* root);
+
+void Matrix(char* matrice,int N,int M);
+
+char* applyChanges(Node *head,char* matrice,int N,int M);
+
+void right(TreeNode **root,char* matrice,int N,int M);
+
+void left(TreeNode** root,char* matrice,int N,int M);
+
+void parcurgere(TreeNode *root,const char* matrice,int N,int M,int lvl,int max);
+
+void listingTreeM(TreeNode* root, char* matrice, int N, int M,FILE* text1, int lvl);
+
+void deleteTree(TreeNode** root);

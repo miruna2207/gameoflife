@@ -90,14 +90,15 @@ void deleteList(Node **head)
 {
     if( *head == NULL ) 
         return ;
+    Node *temp=NULL;
     while( *head != NULL)
     {
-        Node *temp=NULL;
         temp = *head;
         *head = (*head)->urm;
         free(temp);
         temp = NULL;
     }
+    *head = NULL;
 };
 
 void printList(Node *head)
@@ -164,6 +165,7 @@ void deleteStack(Stack **top)
         temp=*top;
         *top=(*top)->next;
         free(temp);
+        temp = NULL;
     }
 };
 
@@ -212,3 +214,197 @@ void writeChanges(Node **head_gen, char *matrice, int N, int M)
     free(copy);
     copy=NULL;
 };
+
+void Matrix(char* matrice,int N,int M)
+{
+    int i,j;
+    for( i = 0; i < N; i++ )
+    {
+        for( j = 0; j < M; j++ )
+        {
+            printf("%c ",*( matrice + i*M +j));
+        }
+        printf("\n");
+    }
+    printf("\n");
+};
+
+char* applyChanges(Node *head,char* matrice,int N,int M)
+{
+    printf("\n alooo");
+        while( head != NULL )
+        {
+            //printf("\n ce zici ba");
+            int n,m; // coordonatele punctelor
+            n=head->l;
+            m=head->c;  
+            //printf("\n intri ba in if?");
+            if (n >= 0 && n < N && m >= 0 && m < M)
+            {
+                    printf("\n da");
+                   // printf("Modific matrice[%d][%d] din %c in ", n, m, *(matrice + M * n + m));
+                    if (*(matrice + M * n + m) == VIE)
+                        *(matrice + M * n + m) = MOARTA;
+                    else
+                        *(matrice + M * n + m) = VIE;
+                    printf("%c\n", *(matrice + M * n + m));
+            }
+            else
+            {
+                printf("\n da,dar cu rosu");
+                printf("Coordonate invalide: n=%d, m=%d\n", n, m);
+            }
+            head=head->urm;
+        }
+        return matrice;
+};
+
+
+void left(TreeNode** root,char* matrice,int N,int M)
+{
+	if( *root == NULL)
+	{
+		*root=(TreeNode*)malloc( sizeof(TreeNode) );
+		if( *root == NULL )
+		{
+			printf("\n alocare esuata");
+			exit(1);
+		}
+		(*root)->head = NULL;
+		(*root)->left = (*root)->right = NULL;
+	}
+	RuleB(&((*root)->head),matrice,N,M);
+}
+
+void right(TreeNode **root,char* matrice,int N,int M)
+{
+	if( *root == NULL)
+	{
+		*root=(TreeNode*)malloc( sizeof(TreeNode));
+		if( *root == NULL )
+		{
+			printf("\n alocare esuata");
+			exit(1);
+		}
+		(*root)->head=NULL;
+		(*root)->left = (*root)->right = NULL;
+	}
+	writeChanges(&( (*root)->head ),matrice,N,M);
+}
+
+void parcurgere(TreeNode *root,const char* matrice,int N,int M,int lvl,int max)
+{
+	if(root == NULL)
+		return;
+	if(lvl >= max)
+		return;
+
+	char* mat_st=(char*)malloc(N*M*sizeof(char));
+	if(mat_st == NULL)
+	{
+		printf("\n alocare esuata");
+		exit(1);
+	}
+	strcpy(mat_st,matrice);
+	left( &(root->left),mat_st,N,M);
+	parcurgere( (root->left),mat_st,N,M,lvl+1,max);
+	free(mat_st);
+
+	char* mat_dr=(char*)malloc( N*M* sizeof(char));
+	if(mat_dr == NULL)
+	{
+		printf("\n alocare esuata");
+		exit(1);
+	}
+	strcpy(mat_dr,matrice);
+	right(&(root->right),mat_dr,N,M);
+	parcurgere( (root->right),mat_dr,N,M,lvl+1,max);
+	free(mat_dr);
+
+};
+
+void listingTreeM(TreeNode* root, char* matrice, int N, int M,FILE* text1, int lvl)
+{
+    if (!root)
+        return;
+
+	if( lvl != 0) // root retine celulele vii si mi ar da toate celulele moarte
+    	applyChanges(root->head, matrice, N, M); 
+	write_in_file_matrice(text1,matrice,N,M);
+
+    // Creează o copie a matricei pentru ramura stângă
+    char* mat_st = (char*)malloc(N * M * sizeof(char));
+    if (mat_st == NULL)
+    {
+        printf("\n Alocare dinamica esuata pentru mat_st");
+        exit(1);
+    }
+    strcpy(mat_st, matrice);
+    listingTreeM(root->left, mat_st, N, M,text1, lvl + 1);
+    free(mat_st);
+
+    // Creează o copie a matricei pentru ramura dreaptă
+    char* mat_dr = (char*)malloc(N * M * sizeof(char));
+    if (mat_dr == NULL)
+    {
+        printf("\n Alocare dinamica esuata pentru mat_dr");
+        exit(1);
+    }
+    strcpy(mat_dr, matrice);
+    listingTreeM(root->right, mat_dr, N, M,text1, lvl + 1);
+    free(mat_dr);
+}
+
+void deleteTree(TreeNode **root)
+{
+    if( *root == NULL )
+        return ;
+    deleteTree(&(*root)->left);
+    deleteTree(&(*root)->right);
+    deleteList(&(*root)->head);
+    free(*root);
+    *root = NULL;
+}
+
+void parcurgereCopac(TreeNode* root)
+{
+    if( root == NULL )
+        return;
+    printList(root->head);
+    parcurgereCopac(root->left);
+    parcurgereCopac(root->right);
+}
+
+char* RuleB(Node **head,char *matrice,int N,int M)
+{
+    printf("\n inceput ruleB");
+    Matrix(matrice,N,M);
+    int i, j;
+    char* copy=(char*)malloc( N*M*sizeof(char));
+    for (i=0;i<N;i++)
+    {
+        for (j=0;j<M;j++)
+        {
+            *(copy+i*M+j) =*(matrice+i*M+j);
+        }
+    }
+    int vecini;
+    for (i=0;i<N;i++)
+    {
+        for (j=0;j<M;j++)
+        {
+            vecini=calculare_vecini(copy,N,M,i,j);
+            if (*(copy+i*M+j) == MOARTA && vecini == 2)
+            {
+                *(matrice + i * M + j) = VIE;
+                printf("\n modific celula %d %d in Moarta",i,j);
+                insertNewNode(head,i,j); 
+            }
+            }
+        }
+    
+    printf("\n iesire ruleB");
+    Matrix(matrice,N,M);
+    free(copy);
+    return matrice;
+};  

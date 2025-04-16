@@ -13,7 +13,7 @@ void next_matrice(FILE *text1,char *matrice,int N,int M)
 		printf("\n Alocare dinamica esuata");
 		exit(1);
 	}
-	for(i=0;i<N;i++)
+	for( i=0; i<N; i++ )
 	{
 		for(j=0;j<M;j++)
 		{
@@ -28,20 +28,12 @@ void next_matrice(FILE *text1,char *matrice,int N,int M)
 			vecini=calculare_vecini(copy,N,M,i,j);
 			if(*(copy+i*M+j)==VIE)
 			{ 
-				if(vecini<2)
-					*(matrice+i*M+j)=MOARTA;
-				if(vecini==2 || vecini==3)
-					*(matrice+i*M+j)=VIE;
-				if(vecini>3)
-					*(matrice+i*M+j)=MOARTA;
+				if(vecini<2 || vecini > 3)
+					*(matrice + i * M + j)=MOARTA;
 			}     
-			if(*(copy+i*M+j)==MOARTA)
-				{
-				if(vecini==3)
-					*(matrice+i*M+j)=VIE;
-				else
-					*(matrice+i*M+j)=MOARTA;
-				}
+			if(*(copy+i*M+j)==MOARTA && vecini == 3)
+				*(matrice+i*M+j)=VIE;
+				
 		}
 	}
 	write_in_file_matrice(text1,matrice,N,M);
@@ -98,12 +90,12 @@ void main(int argc, const char* argv[])
 	{
 		case 1:
 		{
-		write_in_file_matrice(text1,matrice,N,M);
-		for(i=0;i<nr_gen;i++)
-		{
-		next_matrice(text1,matrice,N,M);  
-		}
-		break;
+			write_in_file_matrice(text1,matrice,N,M);
+			for(i=0;i<nr_gen;i++)
+			{
+			next_matrice(text1,matrice,N,M);  
+			}
+			break;
 		}
 		case 2:
 		{
@@ -132,6 +124,35 @@ void main(int argc, const char* argv[])
 			break;
 
 		}
+
+		case 3:
+		{
+			Node *head = NULL; // daca aloc dinamic memorie o sa am o pereche in plus (0,0)
+			TreeNode *root=(TreeNode*)malloc( sizeof(TreeNode) );
+			if( root == NULL)
+			{
+				printf("\n alocare esuata");
+				exit(1);
+			}
+			root->head = NULL;
+			root->left = NULL;
+			root->right = NULL;
+			for( i = 0;i < N; i++)
+			{
+				for( j = 0; j < M; j++)
+				{
+					if( *(matrice + i * M + j) == VIE )
+						insertNewNode(&head,i,j);
+				}
+			}
+			root->head=head;
+			parcurgere(root,matrice,N,M,0,nr_gen);
+			parcurgereCopac(root);
+			Matrix(matrice,N,M);
+			listingTreeM(root,matrice,N,M,text1,0);
+			deleteTree(&root);
+
+		}
 		default:
 		{
 			printf("\n taskul nu e bun");
@@ -141,4 +162,6 @@ void main(int argc, const char* argv[])
 	fclose(text);
 	fclose(text1);
 }
+
+
 
