@@ -1,44 +1,4 @@
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
 #include "gamelib.h"
-
-void next_matrice(FILE *text1,char *matrice,int N,int M)
-{
-	int i,j;
-	char *copy=NULL;
-	copy=(char*)malloc(N*M*sizeof(char));
-	if(copy==NULL)
-	{
-		printf("\n Alocare dinamica esuata");
-		exit(1);
-	}
-	for( i=0; i<N; i++ )
-	{
-		for(j=0;j<M;j++)
-		{
-			*(copy+i*M+j)=*(matrice+i*M+j);
-		}
-	}
-	int vecini;
-	for(i=0;i<N;i++)
-	{   
-		for(j=0;j<M;j++)
-		{   
-			vecini=calculare_vecini(copy,N,M,i,j);
-			if(*(copy+i*M+j)==VIE)
-			{ 
-				if(vecini<2 || vecini > 3)
-					*(matrice + i * M + j)=MOARTA;
-			}     
-			if(*(copy+i*M+j)==MOARTA && vecini == 3)
-				*(matrice+i*M+j)=VIE;
-				
-		}
-	}
-	write_in_file_matrice(text1,matrice,N,M);
-	free(copy);
-};
 
 void main(int argc, const char* argv[])
 {
@@ -46,89 +6,98 @@ void main(int argc, const char* argv[])
     {
         printf("argv[%d]= %s \n",i,argv[i]);
     }
-	FILE *text=fopen(argv[1],"rt");
-	FILE *text1=fopen(argv[2],"w+t");
-	int task,i,j,N,M,nr_gen;
-	char *matrice=NULL;
-	if(text==NULL || text1==NULL)
+	FILE *input = fopen(argv[1],"rt");
+	FILE *output = fopen(argv[2],"w+t");
+	if( input==NULL || output==NULL)
 	{
 		printf("\n Fisierul nu poate fi deschis");
 		exit(1);
 	}
-	fscanf(text,"%d",&task);
-	fscanf(text, "\n");
+
+	int task,i,j,N,M,nr_gen;
+	char *matrice=NULL;
+
+	//reading input data
+	fscanf(input,"%d",&task); 
+	fscanf(input, "\n");
 	printf("\n task=%d",task);
-	fscanf(text,"%d %d",&N,&M);
-	fscanf(text, "\n");
+
+	fscanf(input,"%d %d",&N,&M);
+	fscanf(input, "\n");
 	printf("\n N=%d M=%d",N,M);
+
 	matrice=(char*)malloc(N*M*sizeof(char));
 	if(matrice==NULL)
 	{
 		printf("\n Alocare dinamica esuata");
 		exit(1);
 	}
-	fscanf(text,"%d",&nr_gen);
+	fscanf(input,"%d",&nr_gen);
 	printf("\n nr_gen=%d\n",nr_gen);
-	fscanf(text, "\n");
-	for(i=0;i<N;i++)
+	fscanf(input, "\n");
+	for( i = 0; i < N; i++ )
 	{
-		for(j=0;j<M;j++)
+		for( j = 0; j < M; j++ )
 		{
-			fscanf(text,"%c",(matrice+i*M+j));
+			fscanf(input,"%c", ( matrice + i * M + j ) );
 		}
-		fscanf(text, "\n");
+		fscanf(input, "\n");
 	}
-	for(i=0;i<N;i++)
+	for( i = 0; i < N; i++ )
 	{
-		for(j=0;j<M;j++)
+		for( j = 0; j < M; j++ )
 		{
-			printf("%c",*(matrice+i*M+j));
+			printf("%c",*( matrice + i * M + j ) );
 		}
 		printf("\n");
 	}
+
 	switch(task)
 	{
-		case 1:
+		case 1: // simulatte generations
 		{
-			write_in_file_matrice(text1,matrice,N,M);
-			for(i=0;i<nr_gen;i++)
+			write_in_file_matrice( output, matrice, N, M ); //initial matrix
+			for( i = 0 ; i < nr_gen; i++ )
 			{
-			next_matrice(text1,matrice,N,M);  
+			next_matrice( output, matrice, N, M );  
 			}
 			break;
 		}
-		case 2:
+		case 2: // creating a stack which saves the differences between generations
 		{
-			Stack *top=NULL;
-			top=(Stack*)malloc(sizeof(Stack));
-  			Node *head_gen=NULL;
+			Stack *top = NULL;
+			top = (Stack*)malloc(sizeof(Stack));
+  			Node *head_gen = NULL; // dynamic allocation adds an unwanted pair of (0,0)
+
+
    			if( top == NULL)
 			{
 			printf("\n alocare esuata");
 			exit(1);
 			}
-			top->nr_gen=0;
-			top->headList =NULL;
-			top->next=NULL;
+			top->nr_gen = 0;
+			top->headList = NULL;
+			top->next = NULL;
 
 			for( i = 0; i < nr_gen; i++ )
 			{
-				writeChanges(&head_gen,matrice,N,M);
-				printList(head_gen);
-				push(&top,head_gen,i+1);
-                fprintStack(top,text1);
-                printStackInstant(top);
-				deleteList(&head_gen);
+				writeChanges( &head_gen, matrice, N, M); // write changes for each gen
+				printList(head_gen); // print list on console(debuggin tool)
+				push(&top, head_gen, i+1); //pushing list and the corresponding gen
+                fprintStack(top, output); // printing stack per level
+                printStackInstant(top); // debbuging tool
+				deleteList(&head_gen); 
 			}
 			deleteStack(&top);
 			break;
 
 		}
 
-		case 3:
+		case 3: // adding a new rule named ruleB and creating a binary tree to observe the difference
 		{
-			Node *head = NULL; // daca aloc dinamic memorie o sa am o pereche in plus (0,0)
-			TreeNode *root=(TreeNode*)malloc( sizeof(TreeNode) );
+			//creating root
+			Node *head = NULL; 
+			TreeNode *root=(TreeNode*)malloc( sizeof(TreeNode) ); 
 			if( root == NULL)
 			{
 				printf("\n alocare esuata");
@@ -142,14 +111,15 @@ void main(int argc, const char* argv[])
 				for( j = 0; j < M; j++)
 				{
 					if( *(matrice + i * M + j) == VIE )
-						insertNewNode(&head,i,j);
+						insertNewNode(&head, i, j);// root contains the coords of alive cells
 				}
 			}
-			root->head=head;
-			parcurgere(root,matrice,N,M,0,nr_gen);
-			parcurgereCopac(root);
-			Matrix(matrice,N,M);
-			listingTreeM(root,matrice,N,M,text1,0);
+			root->head = head;
+
+			parcurgere(root, matrice, N, M, 0, nr_gen); // creating tree
+			parcurgereCopac(root); //debugging tool(prints the tree on console)
+			Matrix(matrice, N, M); //debugging tool printing matrix
+			listingTreeM(root, matrice, N, M, output, 0); // writes in output file
 			deleteTree(&root);
 
 		}
@@ -159,8 +129,8 @@ void main(int argc, const char* argv[])
 		}
 	}
 	free(matrice);
-	fclose(text);
-	fclose(text1);
+	fclose(input);
+	fclose(output);
 }
 
 

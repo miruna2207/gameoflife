@@ -1,5 +1,42 @@
 #include "gamelib.h"
 
+void next_matrice(FILE *text1,char *matrice,int N,int M)
+{
+	int i,j;
+	char *copy = NULL;
+	copy = (char*)malloc(N*M*sizeof(char));
+	if( copy == NULL )
+	{
+		printf("\n Alocare dinamica esuata");
+		exit(1);
+	}
+	for( i=0; i < N; i++ )
+	{
+		for( j = 0; j < M; j++ )
+		{
+			*(copy+i*M+j)=*(matrice+i*M+j); // strcpy is sometimes unstable
+		}
+	}
+	int vecini;
+	for( i = 0; i < N; i++ )
+	{   
+		for( j = 0; j < M; j++ )
+		{   
+			vecini = calculare_vecini(copy,N,M,i,j); // calculating for copy to avoid data inconsistency
+			if(*(copy+i*M+j) == VIE)
+			{ 
+				if( vecini < 2 || vecini > 3)
+					*(matrice + i * M + j) = MOARTA;
+			}     
+			if(*(copy+i*M+j) == MOARTA && vecini == 3)
+				*(matrice+i*M+j) = VIE;
+				
+		}
+	}
+	write_in_file_matrice(text1,matrice,N,M);
+	free(copy);
+};
+
 int calculare_vecini(char *matrice,int N,int M,int i,int j)
 {
     int vecini=0;
@@ -231,14 +268,11 @@ void Matrix(char* matrice,int N,int M)
 
 char* applyChanges(Node *head,char* matrice,int N,int M)
 {
-    printf("\n alooo");
         while( head != NULL )
         {
-            //printf("\n ce zici ba");
-            int n,m; // coordonatele punctelor
+            int n,m; // cells' coords
             n=head->l;
             m=head->c;  
-            //printf("\n intri ba in if?");
             if (n >= 0 && n < N && m >= 0 && m < M)
             {
                     printf("\n da");
@@ -251,7 +285,6 @@ char* applyChanges(Node *head,char* matrice,int N,int M)
             }
             else
             {
-                printf("\n da,dar cu rosu");
                 printf("Coordonate invalide: n=%d, m=%d\n", n, m);
             }
             head=head->urm;
@@ -299,7 +332,7 @@ void parcurgere(TreeNode *root,const char* matrice,int N,int M,int lvl,int max)
 	if(lvl >= max)
 		return;
 
-	char* mat_st=(char*)malloc(N*M*sizeof(char));
+	char* mat_st=(char*)malloc(N*M*sizeof(char)); // two matrix to avoid data race
 	if(mat_st == NULL)
 	{
 		printf("\n alocare esuata");
@@ -328,11 +361,11 @@ void listingTreeM(TreeNode* root, char* matrice, int N, int M,FILE* text1, int l
     if (!root)
         return;
 
-	if( lvl != 0) // root retine celulele vii si mi ar da toate celulele moarte
+	if( lvl != 0) // avoiding root because otherwise all the cells are DEAD
     	applyChanges(root->head, matrice, N, M); 
 	write_in_file_matrice(text1,matrice,N,M);
 
-    // Creează o copie a matricei pentru ramura stângă
+    // the matrix for left side
     char* mat_st = (char*)malloc(N * M * sizeof(char));
     if (mat_st == NULL)
     {
@@ -343,7 +376,7 @@ void listingTreeM(TreeNode* root, char* matrice, int N, int M,FILE* text1, int l
     listingTreeM(root->left, mat_st, N, M,text1, lvl + 1);
     free(mat_st);
 
-    // Creează o copie a matricei pentru ramura dreaptă
+    // matrix for right side
     char* mat_dr = (char*)malloc(N * M * sizeof(char));
     if (mat_dr == NULL)
     {
@@ -368,6 +401,7 @@ void deleteTree(TreeNode **root)
 
 void parcurgereCopac(TreeNode* root)
 {
+    //debbuging tool
     if( root == NULL )
         return;
     printList(root->head);
@@ -381,17 +415,17 @@ char* RuleB(Node **head,char *matrice,int N,int M)
     Matrix(matrice,N,M);
     int i, j;
     char* copy=(char*)malloc( N*M*sizeof(char));
-    for (i=0;i<N;i++)
+    for ( i = 0; i < N; i++)
     {
-        for (j=0;j<M;j++)
+        for ( j = 0 ; j < M ; j++)
         {
             *(copy+i*M+j) =*(matrice+i*M+j);
         }
     }
     int vecini;
-    for (i=0;i<N;i++)
+    for ( i = 0; i < N; i++ ) 
     {
-        for (j=0;j<M;j++)
+        for ( j = 0 ; j < M ; j++)
         {
             vecini=calculare_vecini(copy,N,M,i,j);
             if (*(copy+i*M+j) == MOARTA && vecini == 2)

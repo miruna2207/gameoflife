@@ -62,3 +62,5 @@ void parcurgere(TreeNode *root,const char* matrice,int N,int M,int lvl,int max);
 void listingTreeM(TreeNode* root, char* matrice, int N, int M,FILE* text1, int lvl);
 
 void deleteTree(TreeNode** root);
+
+void next_matrice(FILE *text1,char *matrice,int N,int M);
