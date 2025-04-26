@@ -16,7 +16,7 @@ int main()
 
     int nr_gen, i=0, j;
     char *linie = NULL;
-    const char *p = NULL;
+    const char *p = NULL; // a pointer to use for strtok
     Stack *top = NULL;
     Node *head = NULL;
     int N = 0, M = 0;
@@ -27,12 +27,12 @@ int main()
         exit(1);
     }
     
-    //citirea stivei
-    while( fscanf(in,"%d",&nr_gen)== 1 ) // fiecare rand incepe cu nr_gen
+    //reading stack's data
+    while( fscanf(in,"%d",&nr_gen)== 1 ) // every row starts with nr_gen
     {
         i=0;
         fgetc(in);
-        int *vector=(int*)malloc( NRMAX * sizeof(int) ); // vectorul va contine lista de coordonate de pe fiecare rand
+        int *vector=(int*)malloc( NRMAX * sizeof(int) ); 
         printf("nr_gen = %d",nr_gen);
         linie=(char*)malloc( NRMAX * sizeof(char) );
         if(vector == NULL ||  linie == NULL)
@@ -40,16 +40,17 @@ int main()
             printf("\n alocare esuata");
             exit(1);
         }
-        fgets(linie,NRMAX,in); // fgets citeste pana la \n
-        p=strtok(linie," "); // strtok sa mi separe caracterele cautate(cifrele) de space
+        fgets(linie,NRMAX,in); // fgets reads everything till the end of the row 
+        p=strtok(linie," "); 
+        // creating an array with all the coords per nr_gen
         while(p)
         {
-            vector[i]=atoi(p); // atoi pentru a transforma din char in int
+            vector[i]=atoi(p); 
             i++;
             p=strtok(NULL," ");
         }
 
-        //din vectorul construit formez lista
+        //creating the list
         int NUMBERSPERLINE = i; 
         if( NUMBERSPERLINE % 2 == 1 )
         {
@@ -59,19 +60,18 @@ int main()
         {
             printf(" %d",vector[i]);
         }
-        for( i = 0; i < NUMBERSPERLINE; i=i+PAS) // NUMBERSPERLINE e nr par fiind format din perechi de coord
+        for( i = 0; i < NUMBERSPERLINE; i=i+PAS) // NUMBERSPERLINE is an even nr
         {
-            insertNewNode(&head,vector[i],vector[i+1]); // construim mai intai lista
+            insertNewNode(&head,vector[i],vector[i+1]); 
         }
-        push(&top,head,nr_gen); // in push voi crea o copie a lui head pt a evita erorile
-        printStackInstant(top); // sa vad stiva ca in input
-        printStack(top); // s o vad in forma ei din cod
-        deleteList(&head);
-        head=NULL; // necesar
+        push(&top,head,nr_gen); 
+       // printStackInstant(top); // debugging tool
+        printStack(top); // debugging tool 
+        head = NULL;
         free(vector);
         free(linie);
         printf("\n");
-        linie=NULL; // necesar
+        linie=NULL; 
         vector=NULL;
     }
     fscanf(in,"\n");
@@ -82,22 +82,23 @@ int main()
         printf("\n alocare esuata");
         exit(1);
     }
-    //citire matrice finala
+    //reading the array of N x M dimension
     while( fgets(linie,NRMAX,in) )
     {
-        M=strlen(linie)-1; // 1 pentru endline
+        M=strlen(linie)-1; // 1 because of "\n"
         for (i = 0; i < M; i++) {
             *(buffer + N * M + i) = linie[i];
         }
         N++;
     }
-    char *matrice=(char*)malloc(N * M * sizeof(char)); // vr sa inlocuiesc buffer si sa exact atata memorie cat imi trebuie
+    //creating the array
+    char *matrice=(char*)malloc(N * M * sizeof(char)); 
     if( matrice == NULL )
     {
         printf("\n alocare esuata");
         exit(1);
     }
-    printf("\n N=%d M=%d \n",N,M); // nu puteam afla N si M daca nu cream o matrice supradimensionata
+    printf("\n N=%d M=%d \n",N,M); 
     for(i = 0; i < N; i++ )
     {
         for( j = 0; j < M; j++ )
@@ -111,22 +112,13 @@ int main()
     buffer=NULL;
     free(linie);
     linie=NULL;
-    /*
-    for( i = 0; i < N; i++ )
-    {
-        for( j = 0; j < M; j++ )
-        {
-            printf("\n v[%d][%d]=%c",i,j,*(buffer+M*i+j));
-        }
-    }
-    */
-    while(top != NULL)
+    while( top != NULL )
     {
         printf("\n Generatia %d",top->nr_gen);
         Node *temp=top->headList;
-        while( temp )
+        while( temp != NULL)
         {
-            int n,m; // coordonatele punctelor
+            int n,m; 
             n=temp->l;
             m=temp->c;  
             if (n >= 0 && n < N && m >= 0 && m < M)
@@ -144,11 +136,11 @@ int main()
             }
             temp=temp->urm;
         }  
-        pop(&top);  
+    pop(&top);  
     }
 
     printf("\n N=%d M=%d \n",N,M);
-    //scriu matricea in output,stiu ca am un write_in_file_matrice, dar imi pune un \n in plus, care e bun pt outputul de la task1
+    //writing in output file
     for ( i = 0; i < N; i++)
     {
         for ( j = 0; j < M; j++)

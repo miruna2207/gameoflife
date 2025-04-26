@@ -64,3 +64,7 @@ void listingTreeM(TreeNode* root, char* matrice, int N, int M,FILE* text1, int l
 void deleteTree(TreeNode** root);
 
 void next_matrice(FILE *text1,char *matrice,int N,int M);
+
+void pop(Stack **top);
+
+void printStack(Stack *top);

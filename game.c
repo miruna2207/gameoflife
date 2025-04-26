@@ -86,7 +86,7 @@ void main(int argc, const char* argv[])
 				push(&top, head_gen, i+1); //pushing list and the corresponding gen
                 fprintStack(top, output); // printing stack per level
                 printStackInstant(top); // debbuging tool
-				deleteList(&head_gen); 
+				head_gen = NULL;
 			}
 			deleteStack(&top);
 			break;

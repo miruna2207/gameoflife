@@ -110,16 +110,16 @@ void insertNewNode(Node **head,int i, int j)
     newNode->urm=NULL;
     if( *head == NULL)
     {
-        *head=newNode;
+        *head = newNode;
     }
     else
     {
-        Node *temp=*head;
+        Node *temp = *head;
         while(temp->urm != NULL)
         {
-            temp=temp->urm;
+            temp = temp->urm;
         }
-        temp->urm=newNode;
+        temp->urm = newNode;
     }
 };
 
@@ -127,11 +127,10 @@ void deleteList(Node **head)
 {
     if( *head == NULL ) 
         return ;
-    Node *temp=NULL;
     while( *head != NULL)
     {
-        temp = *head;
-        *head = (*head)->urm;
+       Node *temp = *head;
+       *head = (*head)->urm;
         free(temp);
         temp = NULL;
     }
@@ -149,6 +148,18 @@ void printList(Node *head)
     printf("\n");
 };
 
+void pop(Stack **top)
+{
+    if( *top == NULL )
+        return;
+    Stack *temp;
+    temp = *top;
+    *top = (*top)->next;
+    deleteList(&(temp->headList));
+    free(temp);
+    temp = NULL;
+}
+
 
 void push(Stack **top,Node *head,int k)
 {
@@ -160,7 +171,6 @@ void push(Stack **top,Node *head,int k)
     }
     newNode->nr_gen=k;
     newNode->headList=head;
-    newNode->next=NULL;
     if( *top == NULL)
     {
         newNode->next=NULL;
@@ -169,7 +179,7 @@ void push(Stack **top,Node *head,int k)
     {
         newNode->next=*top;
     }
-    *top=newNode;
+    *top = newNode;
 };
 
 void printStackInstant(Stack *top)
@@ -193,18 +203,15 @@ void fprintStack(Stack *top,FILE *text1)
         fprintf(text1,"\n");
 };
 
-void deleteStack(Stack **top)
-{
-    if (*top == NULL) return;
-    Stack *temp=NULL;
-    while(*top)
-    {
-        temp=*top;
-        *top=(*top)->next;
+void deleteStack(Stack** top) {
+    while ((*top) != NULL) {  
+        Stack *temp = *top;
+        *top = (*top)->next;
+        deleteList(&(temp->headList));
         free(temp);
         temp = NULL;
     }
-};
+}
 
 void writeChanges(Node **head_gen, char *matrice, int N, int M)
 {
@@ -442,3 +449,14 @@ char* RuleB(Node **head,char *matrice,int N,int M)
     free(copy);
     return matrice;
 };  
+
+void printStack(Stack *top)
+{
+        Node *temp=top->headList;
+        printf("\n nr_gen=%d",top->nr_gen);
+        while(temp)
+        {
+            printf(" ( %d,%d)",temp->l,temp->c);
+            temp=temp->urm;
+        }
+};
