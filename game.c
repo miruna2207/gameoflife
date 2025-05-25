@@ -1,4 +1,5 @@
 #include "gamelib.h"
+#include "graph.h"
 
 void main(int argc, const char* argv[])
 {
@@ -54,7 +55,7 @@ void main(int argc, const char* argv[])
 
 	switch(task)
 	{
-		case 1: // simulatte generations
+		case 1: // simulate generations
 		{
 			write_in_file_matrice( output, matrice, N, M ); //initial matrix
 			for( i = 0 ; i < nr_gen; i++ )
@@ -121,8 +122,40 @@ void main(int argc, const char* argv[])
 			Matrix(matrice, N, M); //debugging tool printing matrix
 			listingTreeM(root, matrice, N, M, output, 0); // writes in output file
 			deleteTree(&root);
+			break;
 
 		}
+
+		case 4:
+		{
+			Node *head = NULL; 
+			TreeNode *root=(TreeNode*)malloc( sizeof(TreeNode) ); 
+			if( root == NULL)
+			{
+				printf("\n alocare esuata");
+				exit(1);
+			}
+			root->head = NULL;
+			root->left = NULL;
+			root->right = NULL;
+			for( i = 0;i < N; i++)
+			{
+				for( j = 0; j < M; j++)
+				{
+					if( *(matrice + i * M + j) == VIE )
+						insertNewNode(&head, i, j);// root contains the coords of alive cells
+				}
+			}
+			root->head = head;
+
+			parcurgere(root, matrice, N, M, 0, nr_gen);
+			MatrixGraph(root,matrice,N,M,output,0);
+			//Matrix_Graph_iterative(root,matrice,N,M,out,0);
+			deleteTree(&root);
+			break;
+
+   
+}
 		default:
 		{
 			printf("\n taskul nu e bun");
@@ -132,6 +165,3 @@ void main(int argc, const char* argv[])
 	fclose(input);
 	fclose(output);
 }
-
-
-

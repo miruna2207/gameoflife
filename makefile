@@ -1,5 +1,5 @@
 build:
-	gcc game.c gamelib.c -o game
+	gcc game.c gamelib.c graph.c -o game
 
 clean:
 	rm -f game
